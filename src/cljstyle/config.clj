@@ -324,6 +324,12 @@
      :remove-trailing? true
      :insert-missing? true}
 
+    :ignore-comment-macro
+    {:enabled? true}
+
+    :ignore-discard-macro
+    {:enabled? true}
+
     :blank-lines
     {:enabled? true
      :trim-consecutive? true

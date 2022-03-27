@@ -65,6 +65,12 @@
     zloc'))
 
 
+(defn- ignore-forms
+  [rules-config]
+  {:ignore-comment-macro (get-in rules-config [:ignore-comment-macro :enabled?])
+   :ignore-discard-macro (get-in rules-config [:ignore-discard-macro :enabled?])})
+
+
 (defn- apply-walk-rules
   "Edit all nodes in the form by applying the given rules. Returns the updated
   form with attached metadata."
@@ -79,7 +85,8 @@
             [zloc]
             (if-let [rule (match-rules zloc active-rules rules-config durations)]
               (apply-rule zloc rule rules-config durations)
-              zloc)))
+              zloc))
+          (ignore-forms rules-config))
         (z/root))))
 
 
@@ -97,7 +104,8 @@
               [zloc]
               (if-let [rule (match-rules zloc active-rules rules-config durations)]
                 (apply-rule zloc rule rules-config durations)
-                zloc)))
+                zloc))
+            (ignore-forms rules-config))
           (z/root))
       form)))
 

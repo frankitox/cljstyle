@@ -125,11 +125,12 @@
 
 (defn ignored-form?
   "True if the node at this location is an ignored form."
-  [zloc]
-  ;; TODO: option for ignoring comments and discards?
+  [config zloc]
   (or (ignore-meta? zloc)
-      (comment-form? zloc)
-      (discard-macro? zloc)))
+      (and (comment-form? zloc)
+           (:ignore-comment-macro config))
+      (and (discard-macro? zloc)
+           (:ignore-discard-macro config))))
 
 
 (defn whitespace-before?
@@ -303,13 +304,13 @@
 (defn edit-walk
   "Visit all nodes in `zloc` by applying the given function. Returns the final
   zipper location."
-  [zloc f]
+  [zloc f ignore-config]
   (loop [zloc zloc]
     (cond
       (z/end? zloc)
       zloc
 
-      (ignored-form? zloc)
+      (ignored-form? ignore-config zloc)
       (recur (skip-next zloc))
 
       :else
@@ -319,9 +320,9 @@
 (defn edit-scan
   "Scan rightward from the given location, editing nodes by applying the given
   function. Returns the final zipper location."
-  [zloc f]
+  [zloc f ignore-config]
   (loop [zloc zloc]
-    (let [zloc' (if-not (ignored-form? zloc)
+    (let [zloc' (if-not (ignored-form? ignore-config zloc)
                   (f zloc)
                   zloc)]
       (if-let [right (z/right* zloc')]
